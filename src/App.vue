@@ -3,10 +3,10 @@
     Работает!
 
     <div>
-      <button v-on:click="addLike">
+      <button @click="addLike">
         Like
       </button>
-      <button v-on:click="addDislike">
+      <button @click="addDislike">
         Dislike
       </button>
     </div>
