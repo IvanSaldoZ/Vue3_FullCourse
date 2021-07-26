@@ -1,20 +1,10 @@
 <template>
   <div>
-    Работает!
+    <div class="post">
 
-    <div>
-      <button @click="addLike">
-        Like
-      </button>
-      <button @click="addDislike">
-        Dislike
-      </button>
-    </div>
+      <div><strong>Название:</strong> Пост о JavaScript</div>
+      <div><strong>Описание:</strong> Описание поста</div>
 
-    <div>
-      Количество лайков <strong>{{ likes }}</strong>
-      <br>
-      Количество дизайлков <strong>{{ dislikes }}</strong>
     </div>
   </div>
 </template>
@@ -47,4 +37,5 @@ export default {
 </script>
 
 <style>
+
 </style>
