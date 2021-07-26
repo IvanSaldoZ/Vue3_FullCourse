@@ -2,19 +2,18 @@
   <form @submit.prevent>
     <h4>Добавление поста</h4>
     <input
-        v-bind:value="post.title"
-        @input="post.title = $event.target.value"
+        v-model="post.title"
         class="input"
         type="text"
         placeholder="Описание">
     <input
-        v-bind:value="post.body"
-        @input="post.body = $event.target.value"
+        v-model="post.body"
         class="input"
         type="text"
         placeholder="Название">
     <button
         class="btn"
+        @click="createPost"
         >
       Добавить
     </button>
@@ -27,6 +26,20 @@
     data() {
       return {
         post: {
+          title: "",
+          body: ""
+        }
+      }
+    },
+    methods: {
+      createPost() {
+        // Генерим ID поста
+        this.post.id = Date.now();
+        // Генерирум событие, которое сможет отлавливать родительский
+        // компонент при изменении этого (дочернего по отношению к App) компонента
+        // Затем на это событие можно подписаться вверху
+        this.$emit('create', this.post)
+        this.post = {
           title: "",
           body: ""
         }

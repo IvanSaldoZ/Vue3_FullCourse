@@ -1,8 +1,14 @@
 <template>
   <div class="app">
-    <post-form/>
+    <!-- Компонент - добавление поста -->
+    <post-form
+        @create="createPost"
+    />
+    <!-- Компонент - вывод списка постов -->
     <!-- Короткая запись для v-bing - это двоеточие перед передаваемым пропсом -->
-    <post-list :posts="posts"/>
+    <post-list
+        :posts="posts"
+    />
   </div>
 </template>
 
@@ -25,20 +31,14 @@ export default {
         {id: 2, title: 'Какой язык лучше: 2', body: 'Ответ на этот вопрос в этой статье 2'},
         {id: 3, title: 'Какой язык лучше: 3', body: 'Ответ на этот вопрос в этой статье 3'},
       ],
-      title: '',
-      body: ''
     }
   },
   methods: {
-    createPost() {
-      const newPost = {
-        id: Date.now(),
-        title: this.title,
-        body: this.body
-      }
-      this.posts.push(newPost);
-      this.title = "";
-      this.body = "";
+    // Этот метод вызывается, при добавлении поста от дочернего компонента post-form - см выше
+    // В качестве параметра тут - это пост, который пользователь хочет добавить
+    createPost(post) {
+      // Добавляем пост в наш список постов
+      this.posts.push(post);
     }
   }
 }
@@ -56,7 +56,5 @@ export default {
 .app {
   padding: 20px;
 }
-
-
 
 </style>
