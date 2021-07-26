@@ -1,5 +1,7 @@
 <template>
-
+  <div>
+    Работает!
+  </div>
 </template>
 
 <script>
