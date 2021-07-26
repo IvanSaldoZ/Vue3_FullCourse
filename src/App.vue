@@ -21,22 +21,13 @@ export default {
   //Модель
   data() {
     return {
-      likes: 0,
-      dislikes: 0,
+      posts: [
+        {id: 1, title: 'Какой язык лучше: JavaScript или PHP?', body: 'Ответ на этот вопрос в этой статье'},
+        {id: 2, title: 'Какой язык лучше: 2', body: 'Ответ на этот вопрос в этой статье 2'},
+        {id: 3, title: 'Какой язык лучше: 3', body: 'Ответ на этот вопрос в этой статье 3'},
+      ],
     }
   },
-  // Функции для изменения компонентов
-  methods: {
-    //Метод для увеличения лайков
-    addLike() {
-      this.likes += 1;
-    },
-    //Метод для увеличения дизлайков
-    addDislike() {
-      this.dislikes += 1;
-    },
-
-  }
 }
 
 
@@ -52,6 +43,6 @@ export default {
 .post {
   padding: 15px;
   border: 2px solid green;
-;
+  margin-top: 15px;
 }
 </style>
