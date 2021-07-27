@@ -6,8 +6,10 @@
     />
     <!-- Компонент - вывод списка постов -->
     <!-- Короткая запись для v-bing - это двоеточие перед передаваемым пропсом -->
+    <!-- @remove - это on_remove - это событие из дочернего компонента post-list по удалению поста -->
     <post-list
         :posts="posts"
+        @remove="removePost"
     />
   </div>
 </template>
@@ -39,6 +41,11 @@ export default {
     createPost(post) {
       // Добавляем пост в наш список постов
       this.posts.push(post);
+    },
+    removePost(post) {
+      // Копируем с помощью метода Filter только те посты в тот же массив, айдишники которых
+      // НЕ равны указанному посту для удаления
+      this.posts = this.posts.filter(p => p.id !== post.id)
     }
   }
 }
