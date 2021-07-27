@@ -87,19 +87,15 @@ export default {
     async fetchPosts() {
       try {
         this.isPostsLoading = true;
-        // Таймаут 1 секунда для просмотра процесса отрисовки при подгрузке постов
-        setTimeout(async () => {
-          // коллбек таймаута
-          //Получаем посты с сервера - бакэнд
-          const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
-          // Помещаем в модель posts то, что хранится в ответе в поле data (посты с сервера)
-          this.posts = response.data;
-          //Меняем состояние переменной загрузки постов
-          this.isPostsLoading = false;
-        }, 1000);
+        //Получаем посты с сервера - бакэнд
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        // Помещаем в модель posts то, что хранится в ответе в поле data (посты с сервера)
+        this.posts = response.data;
       } catch (e) {
         alert('Ошибка')
       } finally {
+        //Меняем состояние переменной загрузки постов
+        this.isPostsLoading = false;
       }
     }
   },
