@@ -1,5 +1,5 @@
 <template>
-  <div v-show="posts.length > 0">
+  <div v-if="posts.length > 0">
     <h3>Список постов</h3>
     <!-- @remove - это on_remove - это событие из дочернего компонента post-item по удалению поста -->
     <post-item v-for="post in posts"
@@ -8,7 +8,7 @@
                @remove="$emit('remove', post)"
     />
   </div>
-  <h2 v-show="posts.length === 0" style="color: red">
+  <h2 v-else style="color: red">
     Список постов пуст!
   </h2>
 </template>
