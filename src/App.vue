@@ -3,7 +3,14 @@
     <h1>Страница с постами</h1>
 
     <my-button
+      @click="fetchPosts"
+    >
+      Получить посты
+    </my-button>
+
+    <my-button
         @click="showDialog"
+        style = "margin: 15px 0;"
     >Создать пост</my-button>
 
     <!-- Компонент - добавление поста через модальную форму -->
@@ -35,21 +42,21 @@
 import PostForm from "@/components/PostForm";
 import PostList from "@/components/PostList";
 import MyDialog from "@/components/UI/MyDialog";
+import axios from "axios";
+import MyButton from "@/components/UI/MyButton";
+
 
 export default {
   //Регистрируем компоненты
   components: {
+    MyButton,
     MyDialog,
     PostForm, PostList
   },
-  //Модель
+  //Модель - посты
   data() {
     return {
-      posts: [
-        {id: 1, title: 'Какой язык лучше: JavaScript или PHP?', body: 'Ответ на этот вопрос в этой статье'},
-        {id: 2, title: 'Какой язык лучше: 2', body: 'Ответ на этот вопрос в этой статье 2'},
-        {id: 3, title: 'Какой язык лучше: 3', body: 'Ответ на этот вопрос в этой статье 3'},
-      ],
+      posts: [],
       //Модель для отображения или скрытия диалогового окннаа
       dialogVisible: false
     }
@@ -69,6 +76,17 @@ export default {
     },
     showDialog() {
       this.dialogVisible = true;
+    },
+    async fetchPosts() {
+      try {
+        //Получаем посты с сервера - бакэнд
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        // Помещаем в модель posts то, что хранится в ответе в поле data (посты с сервера)
+        this.posts = response.data;
+      } catch (e) {
+        alert('Ошибка')
+      }
+
     }
   }
 }
