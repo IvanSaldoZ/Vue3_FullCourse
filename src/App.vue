@@ -125,7 +125,12 @@ export default {
     // поэтому и тут мы тоже назовем метод для отслеживания selectedSort
     // Параметр - новое значение
     selectedSort(newValue) {
-      console.log(newValue)
+      // Сортируем посты - в качестве параметров выступает коллбек с двумя постами для сравнения
+      this.posts.sort((post1, post2) => {
+        // Сравниваем называние одного поста с названием другого через метод localeCompare
+        // newValue = this.selectedSort - выбранный метод сортировки (title или body)
+        return post1[newValue]?.localeCompare(post2[newValue])
+      })
     },
     // Наблюдаем за тем, видимо окно диалога или нет
     dialogVisible(newValue) {
