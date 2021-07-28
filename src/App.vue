@@ -2,16 +2,25 @@
   <div class="app">
     <h1>Страница с постами</h1>
 
-    <my-button
-      @click="fetchPosts"
-    >
-      Получить посты
-    </my-button>
+    <div class="app__btns">
+      <my-button
+          @click="showDialog"
+          style = "margin: 15px 0;"
+      >
+        Создать пост
+      </my-button>
+      <my-button
+          @click="fetchPosts"
+      >
+        Получить посты
+      </my-button>
+      <my-select
+          v-model="selectedSort"
+          :options="sortOptions"
+      />
+    </div>
 
-    <my-button
-        @click="showDialog"
-        style = "margin: 15px 0;"
-    >Создать пост</my-button>
+
 
     <!-- Компонент - добавление поста через модальную форму -->
     <my-dialog v-model:show="dialogVisible">
@@ -45,17 +54,14 @@
 //Импортируем файлы с компонентами
 import PostForm from "@/components/PostForm";
 import PostList from "@/components/PostList";
-import MyDialog from "@/components/UI/MyDialog";
 import axios from "axios";
-import MyButton from "@/components/UI/MyButton";
 
 
 export default {
   //Регистрируем компоненты
   components: {
-    MyButton,
-    MyDialog,
-    PostForm, PostList
+    PostForm,
+    PostList
   },
   //Модели описываются в data
   data() {
@@ -65,7 +71,13 @@ export default {
       dialogVisible: false,
       // Состояние загрузки постов - заружены/нет
       isPostsLoading: false,
-
+      // Модель для сортировки - выпадающего списка
+      selectedSort: '',
+      // Массив, который будет содержать элементы списка
+      sortOptions: [
+        {value: 'title', name: 'По заголовку'},
+        {value: 'body', name: 'По содержимому'},
+      ]
     }
   },
   methods: {
@@ -119,6 +131,12 @@ export default {
 
 .app {
   padding: 20px;
+}
+
+.app__btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 </style>
