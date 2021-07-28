@@ -1,7 +1,10 @@
 <template>
   <div class="app">
     <h1>Страница с постами</h1>
-
+    <my-input
+        v-model="searchQuery"
+        placeholder="Поиск по постам"
+    />
     <div class="app__btns">
       <my-button
           @click="showDialog"
@@ -38,8 +41,10 @@
     <!-- Компонент - вывод списка постов -->
     <!-- Короткая запись для v-bing - это двоеточие перед передаваемым пропсом -->
     <!-- @remove - это on_remove - это событие из дочернего компонента post-list по удалению поста -->
+    <!-- Передаем в компонент PostList результат
+    выполнения метода sortedAndSearchedPosts - сортировки и поиска по массиву -->
     <post-list
-        :posts="sortedPosts"
+        :posts="sortedAndSearchedPosts"
         @remove="removePost"
         v-if="!isPostsLoading"
     />
@@ -55,7 +60,6 @@
 import PostForm from "@/components/PostForm";
 import PostList from "@/components/PostList";
 import axios from "axios";
-
 
 export default {
   //Регистрируем компоненты
@@ -77,7 +81,9 @@ export default {
       sortOptions: [
         {value: 'title', name: 'По заголовку'},
         {value: 'body', name: 'По содержимому'},
-      ]
+      ],
+      // Модель-строка для поиска по постам
+      searchQuery: ''
     }
   },
   methods: {
@@ -130,6 +136,12 @@ export default {
         // this.selectedSort - выбранный метод сортировки (title или body)
         return post1[this.selectedSort]?.localeCompare(post2[this.selectedSort])
       })
+    },
+    // Объявляем новое компьютед-свойство для поиска постов (с предварительной сортировкой)
+    sortedAndSearchedPosts() {
+      // Возвращаем this.sortedPosts, но фильтрованный по поисковой строке
+      // .toLowerCase() - метод, который приводит все символы строки к нижнему регистру
+      return this.sortedPosts.filter(post => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()))
     }
   },
   // объект для отслеживания изменения какой-то модели/свойства/поля (функция-наблюдатель)
