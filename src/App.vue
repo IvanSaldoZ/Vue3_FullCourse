@@ -51,6 +51,24 @@
     <div v-if="isPostsLoading">
       <h3>Загрузка постов...</h3>
     </div>
+
+
+    <!-- Ссылки для перехода по страницам-->
+    <div class="page__wrapper">
+      <div
+          v-for="pageNumber in totalPages"
+          :key="pageNumber"
+          class="page"
+          :class="{
+            'current-page': page === pageNumber
+          }"
+          @click="changePage(pageNumber)"
+      >
+
+        {{ pageNumber }}
+
+      </div>
+    </div>
   </div>
 </template>
 
@@ -83,7 +101,11 @@ export default {
         {value: 'body', name: 'По содержимому'},
       ],
       // Модель-строка для поиска по постам
-      searchQuery: ''
+      searchQuery: '',
+      // Модель для постраничного вывода
+      page: 1, //текущая страница
+      limit: 10, //кол-во постов на одной странице
+      totalPages: 0 //общее кол-во страниц
     }
   },
   methods: {
@@ -94,19 +116,29 @@ export default {
       this.posts.push(post);
       this.dialogVisible = false;
     },
+    // Удаляем пост
     removePost(post) {
       // Копируем с помощью метода Filter только те посты в тот же массив, айдишники которых
       // НЕ равны указанному посту для удаления
       this.posts = this.posts.filter(p => p.id !== post.id)
     },
+    // Показываем диалог
     showDialog() {
       this.dialogVisible = true;
     },
+    // Получаем список постов
     async fetchPosts() {
       try {
         this.isPostsLoading = true;
         //Получаем посты с сервера - бакэнд
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+          params: {
+            _page: this.page,
+            _limit: this.limit
+          }
+        });
+        // Считаем кол-во страниц (общее кол-во постов достаём из хедера) с округлением
+        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit)
         // Помещаем в модель posts то, что хранится в ответе в поле data (посты с сервера)
         this.posts = response.data;
       } catch (e) {
@@ -115,6 +147,9 @@ export default {
         //Меняем состояние переменной загрузки постов
         this.isPostsLoading = false;
       }
+    },
+    changePage(pageNumber) {
+      this.page = pageNumber
     }
   },
   // При маунте компонента
@@ -162,6 +197,10 @@ export default {
     // Наблюдаем за тем, видимо окно диалога или нет
     dialogVisible(newValue) {
       console.log(newValue)
+    },
+    // Наблюдатель за номером страницы - когда он меняется, отрабатывает эта функция
+    page() {
+      this.fetchPosts()
     }
   }
 }
@@ -184,6 +223,20 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.page__wrapper {
+  display: flex;
+  margin-top: 15px;
+}
+
+.page {
+  border: 1px solid black;
+  padding: 10px;
+}
+
+.current-page {
+  border: 2px solid teal;
 }
 
 </style>
