@@ -52,23 +52,27 @@
       <h3>Загрузка постов...</h3>
     </div>
 
+    <!-- Наблюдатель за тем, долистал ли пользователь до данного места-->
+    <!-- https://developer.mozilla.org/ru/docs/Web/API/Intersection_Observer_API -->
+    <div ref="observer" class="observer"></div>
+
 
     <!-- Ссылки для перехода по страницам-->
-    <div class="page__wrapper">
-      <div
-          v-for="pageNumber in totalPages"
-          :key="pageNumber"
-          class="page"
-          :class="{
-            'current-page': page === pageNumber
-          }"
-          @click="changePage(pageNumber)"
-      >
+<!--    <div class="page__wrapper">-->
+<!--      <div-->
+<!--          v-for="pageNumber in totalPages"-->
+<!--          :key="pageNumber"-->
+<!--          class="page"-->
+<!--          :class="{-->
+<!--            'current-page': page === pageNumber-->
+<!--          }"-->
+<!--          @click="changePage(pageNumber)"-->
+<!--      >-->
 
-        {{ pageNumber }}
+<!--        {{ pageNumber }}-->
 
-      </div>
-    </div>
+<!--      </div>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -148,6 +152,25 @@ export default {
         this.isPostsLoading = false;
       }
     },
+    // Получаем список постов при скролле в конец страницы
+    async loadMorePosts() {
+      try {
+        this.page += 1; // Увеличиваем страницу на единичку
+        //Получаем посты с сервера - бакэнд
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+          params: {
+            _page: this.page,
+            _limit: this.limit
+          }
+        });
+        // Считаем кол-во страниц (общее кол-во постов достаём из хедера) с округлением
+        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit)
+        // Помещаем в модель posts то, что хранится в ответе в поле data (посты с сервера)
+        this.posts = [...this.posts, ...response.data];
+      } catch (e) {
+        alert('Ошибка')
+      }
+    },
     changePage(pageNumber) {
       this.page = pageNumber
     }
@@ -157,6 +180,22 @@ export default {
   mounted() {
     // Подгружаем посты
     this.fetchPosts();
+    // Запускаем наблюдателя за блоком div observer, при скролле которого подгружаются новые посты
+    // https://developer.mozilla.org/ru/docs/Web/API/Intersection_Observer_API
+    const options = {
+      rootMargin: '0px',
+      threshold: 1.0
+    };
+    const callback = (entries, observer) => {
+      // Коллбек, который отработает, когда происходит пересечение
+      // При условии, что текущая страница меньше, чем общее число страниц
+      if (entries[0].isIntersecting && this.page < this.totalPages) {
+        this.loadMorePosts();
+      }
+    };
+    const observer = new IntersectionObserver(callback, options);
+    // Вызываем наблюдателя и указываем объект (DOM-элемент), за которым ему надо следить (через ref="observer" выше)
+    observer.observe(this.$refs.observer);
   },
   // computed - обертка для вычисления какого-то поля объекта
   // Нужно для того, чтобы при неизменности самого объекта какая-то переменная также не изменялась
@@ -199,9 +238,9 @@ export default {
       console.log(newValue)
     },
     // Наблюдатель за номером страницы - когда он меняется, отрабатывает эта функция
-    page() {
-      this.fetchPosts()
-    }
+    // page() {
+    //   this.fetchPosts()
+    // }
   }
 }
 
@@ -237,6 +276,12 @@ export default {
 
 .current-page {
   border: 2px solid teal;
+}
+
+/* Наблюдатель, долистал ли пользователь до этого места */
+.observer {
+  height: 30px;
+  background: green;
 }
 
 </style>
