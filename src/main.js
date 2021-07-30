@@ -3,6 +3,7 @@ import App from './App'
 
 //Импортируем UI-компоненты
 import components from '@/components/UI';
+import router from "@/router/router";
 
 
 // Создаем экземпляр приложения и помещаем его в переменную app
@@ -14,4 +15,7 @@ components.forEach(component => {
 })
 
 // Запускаем приложение в div с классом app (см. index.html-файл)
-app.mount('#app')
+// router - маршрутизатор для добавления постраничной навигации
+app
+  .use(router)
+  .mount('#app')
