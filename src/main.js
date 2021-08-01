@@ -9,6 +9,9 @@ import router from "@/router/router";
 // Импортируем наши директивы (которые мы создали)
 import directives from "@/directives";
 
+// Импортируем стор (Vuex)
+import store from '@/store'
+
 // Создаем экземпляр приложения и помещаем его в переменную app
 const app = createApp(App)
 
@@ -28,4 +31,5 @@ directives.forEach(directive => {
 // router - маршрутизатор для добавления постраничной навигации
 app
   .use(router)
+  .use(store)
   .mount('#app')

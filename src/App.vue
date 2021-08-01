@@ -10,7 +10,7 @@
 </template>
 
 <script>
- import NavBar from "@/components/UI/NavBar";
+ import NavBar from "@/components/UI/Navbar";
  export default {
    components: {NavBar}
  }

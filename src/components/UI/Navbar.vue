@@ -6,6 +6,7 @@
     <div class="navbar__btns">
 
       <my-button @click="$router.push('/posts')" style="margin-left: 20px;">Посты</my-button>
+      <my-button @click="$router.push('/store')" style="margin-left: 20px;">Store</my-button>
       <my-button @click="$router.push('/about')" style="margin-left: 20px;">О нас</my-button>
     </div>
   </div>
@@ -14,7 +15,7 @@
 <script>
 import MyButton from "@/components/UI/MyButton";
 export default {
-  name: "NavBar",
+  name: "Navbar",
   components: {MyButton}
 }
 </script>
