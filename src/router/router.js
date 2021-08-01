@@ -4,6 +4,7 @@ import PostPage from "@/pages/PostPage";
 import AboutPage from "@/pages/AboutPage";
 import PostDetailPage from "@/pages/PostDetailPage";
 import PostsPageWithVuex from "@/pages/PostsPageWithVuex";
+import PostsPageCompositionAPI from "@/pages/PostsPageCompositionAPI";
 
 const routes = [
   {
@@ -25,7 +26,11 @@ const routes = [
   {
     path: '/store',
     component: PostsPageWithVuex
-  }
+  },
+  {
+    path: '/composition_api',
+    component: PostsPageCompositionAPI
+  },
 ]
 
 
