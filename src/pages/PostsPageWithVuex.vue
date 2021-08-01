@@ -1,21 +1,14 @@
 <template>
   <div>
 
-    <!-- Для доступа к стору можно использовать переменную $store -->
-    <h1>Авторизован: {{ $store.state.isAuth ? "Да": "Нет" }}</h1>
-    <h1>Кол-во лайков: {{ $store.state.likes }}</h1>
-    <h1>Кол-во лайков: {{ $store.getters.doubleLikes }}</h1>
 
-    <!-- Для работы с мутациями в глобальном сторе используется коммит-->
-    <div>
-      <my-button @click="$store.commit('incrementLikes')">Лайк</my-button>
-      <my-button @click="$store.commit('decrementLikes')">Дизлайк</my-button>
-    </div>
+    <!-- Чтобы обратиться к каким-то полям, необходимо сначала обратиться к какому-то модулю-->
 
     <h1>Страница с постами</h1>
     <my-input
         v-focus
-        v-model="searchQuery"
+        :model-value="searchQuery"
+        @update:model-value="setSearchQuery"
         placeholder="Поиск по постам"
     />
     <div class="app__btns">
@@ -31,7 +24,8 @@
         Получить посты
       </my-button>
       <my-select
-          v-model="selectedSort"
+          :model-value="selectedSort"
+          @update:model-value="setSelectedSort"
           :options="sortOptions"
       />
     </div>
@@ -70,22 +64,6 @@
     <div v-intersection="loadMorePosts" class="observer"></div>
 
 
-    <!-- Ссылки для перехода по страницам-->
-    <!--    <div class="page__wrapper">-->
-    <!--      <div-->
-    <!--          v-for="pageNumber in totalPages"-->
-    <!--          :key="pageNumber"-->
-    <!--          class="page"-->
-    <!--          :class="{-->
-    <!--            'current-page': page === pageNumber-->
-    <!--          }"-->
-    <!--          @click="changePage(pageNumber)"-->
-    <!--      >-->
-
-    <!--        {{ pageNumber }}-->
-
-    <!--      </div>-->
-    <!--    </div>-->
   </div>
 </template>
 
@@ -94,7 +72,9 @@
 //Импортируем файлы с компонентами
 import PostForm from "@/components/PostForm";
 import PostList from "@/components/PostList";
-import axios from "axios";
+// Импортируем сокращения для $store.getters.post....
+// Нужно для упрощения получения мутаций, экшона, стейта и геттеров
+import {mapState, mapGetters, mapMutations, mapActions} from 'vuex';
 
 export default {
   //Регистрируем компоненты
@@ -105,27 +85,24 @@ export default {
   //Модели описываются в data
   data() {
     return {
-      posts: [],
-      // Модель для отображения или скрытия диалогового окннаа
       dialogVisible: false,
-      // Состояние загрузки постов - заружены/нет
-      isPostsLoading: false,
-      // Модель для сортировки - выпадающего списка
-      selectedSort: '',
-      // Массив, который будет содержать элементы списка
-      sortOptions: [
-        {value: 'title', name: 'По заголовку'},
-        {value: 'body', name: 'По содержимому'},
-      ],
-      // Модель-строка для поиска по постам
-      searchQuery: '',
-      // Модель для постраничного вывода
-      page: 1, //текущая страница
-      limit: 10, //кол-во постов на одной странице
-      totalPages: 0 //общее кол-во страниц
+
+      // Перенесены в глобальный стор
     }
   },
   methods: {
+    // Разворачиваем методы для работы с мутациями и экшонами
+    ...mapMutations({
+      setPage: 'post/setPage',
+      setSearchQuery: 'post/setSearchQuery',
+      setSelectedSort: 'post/setSelectedSort'
+    }),
+    // Сразу подгружаем все необходимые нам методы
+    ...mapActions({
+      loadMorePosts: 'post/loadMorePosts',
+      fetchPosts: 'post/fetchPosts'
+    }),
+
     // Этот метод вызывается, при добавлении поста от дочернего компонента post-form - см выше
     // В качестве параметра тут - это пост, который пользователь хочет добавить
     createPost(post) {
@@ -143,47 +120,6 @@ export default {
     showDialog() {
       this.dialogVisible = true;
     },
-    // Получаем список постов
-    async fetchPosts() {
-      try {
-        this.isPostsLoading = true;
-        //Получаем посты с сервера - бакэнд
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
-          params: {
-            _page: this.page,
-            _limit: this.limit
-          }
-        });
-        // Считаем кол-во страниц (общее кол-во постов достаём из хедера) с округлением
-        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit)
-        // Помещаем в модель posts то, что хранится в ответе в поле data (посты с сервера)
-        this.posts = response.data;
-      } catch (e) {
-        alert('Ошибка')
-      } finally {
-        //Меняем состояние переменной загрузки постов
-        this.isPostsLoading = false;
-      }
-    },
-    // Получаем список постов при скролле в конец страницы
-    async loadMorePosts() {
-      try {
-        this.page += 1; // Увеличиваем страницу на единичку
-        //Получаем посты с сервера - бакэнд
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
-          params: {
-            _page: this.page,
-            _limit: this.limit
-          }
-        });
-        // Считаем кол-во страниц (общее кол-во постов достаём из хедера) с округлением
-        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit)
-        // Помещаем в модель posts то, что хранится в ответе в поле data (посты с сервера)
-        this.posts = [...this.posts, ...response.data];
-      } catch (e) {
-        alert('Ошибка')
-      }
-    },
     changePage(pageNumber) {
       this.page = pageNumber
     }
@@ -191,53 +127,39 @@ export default {
   // При маунте компонента
   // https://v3.ru.vuejs.org/ru/guide/instance.html#диаграмма-жизненного-цикла
   mounted() {
-    // Подгружаем посты
+    // Подгружаем посты - снова работает, потому что развернули хуки ...mapActions из глобального стора
     this.fetchPosts();
   },
   // computed - обертка для вычисления какого-то поля объекта
   // Нужно для того, чтобы при неизменности самого объекта какая-то переменная также не изменялась
   // (экономия ресурсов)
   computed: {
-    // Объявляем метод для сортировки массива (в отличие от watch имя метода может быть любым)
-    sortedPosts() {
-      // [...this.posts] - создает копию массива ... - разворот массива
-      // (нужно, чтобы не менять исходный массив, а точнее - номера индексов)
-      return [...this.posts].sort((post1, post2) => {
-        // Сравниваем называние одного поста с названием другого через метод localeCompare
-        // this.selectedSort - выбранный метод сортировки (title или body)
-        return post1[this.selectedSort]?.localeCompare(post2[this.selectedSort])
-      })
-    },
-    // Объявляем новое компьютед-свойство для поиска постов (с предварительной сортировкой)
-    sortedAndSearchedPosts() {
-      // Возвращаем this.sortedPosts, но фильтрованный по поисковой строке
-      // .toLowerCase() - метод, который приводит все символы строки к нижнему регистру
-      return this.sortedPosts.filter(post => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()))
-    }
+    // Замапываем геттеры и State, чтобы убрать глобальный неймспейс
+    ...mapState({
+      posts: state => state.post.posts,
+      // Состояние загрузки постов - заружены/нет
+      isPostsLoading: state => state.post.isPostsLoading,
+      // Модель для сортировки - выпадающего списка
+      selectedSort: state => state.post.selectedSort,
+      //Массив, который будет содержать элементы списка
+      sortOptions: state => state.post.sortOptions,
+      // Модель-строка для поиска по постам
+      searchQuery: state => state.post.searchQuery,
+      // Модель для постраничного вывода
+      page: state => state.post.page, //текущая страница
+      limit: state => state.post.limit, //кол-во постов на одной странице
+      totalPages: state => state.post.totalPages, //общее кол-во страниц
+    }),
+    ...mapGetters({
+      sortedPosts: 'post/sortedPosts',
+      sortedAndSearchedPosts: 'post/sortedAndSearchedPosts'
+    })
+
+    // Остальные перенесены в глобальный стор
   },
   // объект для отслеживания изменения какой-то модели/свойства/поля (функция-наблюдатель)
   watch: {
-    // Метод, который отслеживает изменение модели. Имя этого метода должно быть таким же,
-    // как и имя той модель, за которой наблюдает этот watch-метод
-    // (в нашем случае модель в data() выше называется selectedSort),
-    // поэтому и тут мы тоже назовем метод для отслеживания selectedSort
-    // Параметр - новое значение
-    // selectedSort(newValue) {
-    //   // Сортируем посты - в качестве параметров выступает коллбек с двумя постами для сравнения
-    //   this.posts.sort((post1, post2) => {
-    //     // Сравниваем называние одного поста с названием другого через метод localeCompare
-    //     // newValue = this.selectedSort - выбранный метод сортировки (title или body)
-    //     return post1[newValue]?.localeCompare(post2[newValue])
-    //   })
-    // },
-    // Наблюдаем за тем, видимо окно диалога или нет
-    dialogVisible(newValue) {
-      console.log(newValue)
-    },
-    // Наблюдатель за номером страницы - когда он меняется, отрабатывает эта функция
-    // page() {
-    //   this.fetchPosts()
-    // }
+
   }
 }
 
