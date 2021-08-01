@@ -2,6 +2,7 @@
   <div>
     <h1>Страница с постами</h1>
     <my-input
+        v-focus
         v-model="searchQuery"
         placeholder="Поиск по постам"
     />
@@ -54,7 +55,7 @@
 
     <!-- Наблюдатель за тем, долистал ли пользователь до данного места-->
     <!-- https://developer.mozilla.org/ru/docs/Web/API/Intersection_Observer_API -->
-    <div ref="observer" class="observer"></div>
+    <div v-intersection="loadMorePosts" class="observer"></div>
 
 
     <!-- Ссылки для перехода по страницам-->
@@ -180,22 +181,6 @@ export default {
   mounted() {
     // Подгружаем посты
     this.fetchPosts();
-    // Запускаем наблюдателя за блоком div observer, при скролле которого подгружаются новые посты
-    // https://developer.mozilla.org/ru/docs/Web/API/Intersection_Observer_API
-    const options = {
-      rootMargin: '0px',
-      threshold: 1.0
-    };
-    const callback = (entries, observer) => {
-      // Коллбек, который отработает, когда происходит пересечение
-      // При условии, что текущая страница меньше, чем общее число страниц
-      if (entries[0].isIntersecting && this.page < this.totalPages) {
-        this.loadMorePosts();
-      }
-    };
-    const observer = new IntersectionObserver(callback, options);
-    // Вызываем наблюдателя и указываем объект (DOM-элемент), за которым ему надо следить (через ref="observer" выше)
-    observer.observe(this.$refs.observer);
   },
   // computed - обертка для вычисления какого-то поля объекта
   // Нужно для того, чтобы при неизменности самого объекта какая-то переменная также не изменялась
