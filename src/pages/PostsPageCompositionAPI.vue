@@ -1,66 +1,51 @@
 <template>
   <div>
-    <h1>{{ likes }}</h1>
-    <br><br>
-    <button @click="addLike">Добавить лайк</button>
 
 
     <h1>Страница с постами</h1>
-<!--    <my-input-->
-<!--        v-focus-->
-<!--        v-model="searchQuery"-->
-<!--        placeholder="Поиск по постам"-->
-<!--    />-->
-<!--    <div class="app__btns">-->
-<!--      <my-button-->
-<!--          @click="showDialog"-->
-<!--          style = "margin: 15px 0;"-->
-<!--      >-->
-<!--        Создать пост-->
-<!--      </my-button>-->
-<!--      <my-button-->
-<!--          @click="fetchPosts"-->
-<!--      >-->
-<!--        Получить посты-->
-<!--      </my-button>-->
-<!--      <my-select-->
-<!--          v-model="selectedSort"-->
-<!--          :options="sortOptions"-->
-<!--      />-->
-<!--    </div>-->
+    <my-input
+        v-focus
+        v-model="searchQuery"
+        placeholder="Поиск по постам"
+    />
+    <div class="app__btns">
+      <my-button
+          style = "margin: 15px 0;"
+      >
+        Создать пост
+      </my-button>
+      <my-select
+          v-model="selectedSort"
+          :options="sortOptions"
+      />
+    </div>
 
 
 
-<!--    &lt;!&ndash; Компонент - добавление поста через модальную форму &ndash;&gt;-->
-<!--    <my-dialog v-model:show="dialogVisible">-->
+    <!-- Компонент - добавление поста через модальную форму -->
+    <my-dialog v-model:show="dialogVisible">
 
-<!--      &lt;!&ndash; Компонент - форма добавления поста-->
-<!--      поскольку внутри my-dialog есть slots, то туда попадет всё содержимое этого тэга &ndash;&gt;-->
-<!--      <post-form-->
-<!--          @create="createPost"-->
-<!--      />-->
-
-
-<!--    </my-dialog>-->
+      <!-- Компонент - форма добавления поста
+      поскольку внутри my-dialog есть slots, то туда попадет всё содержимое этого тэга -->
+      <post-form
+      />
 
 
-<!--    &lt;!&ndash; Компонент - вывод списка постов &ndash;&gt;-->
-<!--    &lt;!&ndash; Короткая запись для v-bing - это двоеточие перед передаваемым пропсом &ndash;&gt;-->
-<!--    &lt;!&ndash; @remove - это on_remove - это событие из дочернего компонента post-list по удалению поста &ndash;&gt;-->
-<!--    &lt;!&ndash; Передаем в компонент PostList результат-->
-<!--    выполнения метода sortedAndSearchedPosts - сортировки и поиска по массиву &ndash;&gt;-->
-<!--    <post-list-->
-<!--        :posts="sortedAndSearchedPosts"-->
-<!--        @remove="removePost"-->
-<!--        v-if="!isPostsLoading"-->
-<!--    />-->
-<!--    <div v-if="isPostsLoading">-->
-<!--      <h3>Загрузка постов...</h3>-->
-<!--    </div>-->
+    </my-dialog>
 
-<!--    &lt;!&ndash; Наблюдатель за тем, долистал ли пользователь до данного места&ndash;&gt;-->
-<!--    &lt;!&ndash; https://developer.mozilla.org/ru/docs/Web/API/Intersection_Observer_API &ndash;&gt;-->
-<!--    <div v-intersection="loadMorePosts" class="observer"></div>-->
+
+    <!-- Компонент - вывод списка постов -->
+    <!-- Короткая запись для v-bing - это двоеточие перед передаваемым пропсом -->
+    <!-- @remove - это on_remove - это событие из дочернего компонента post-list по удалению поста -->
+    <!-- Передаем в компонент PostList результат
+    выполнения метода sortedAndSearchedPosts - сортировки и поиска по массиву -->
+    <post-list
+        :posts="sortedAndSearchedPosts"
+        v-if="!isPostsLoading"
+    />
+    <div v-if="isPostsLoading">
+      <h3>Загрузка постов...</h3>
+    </div>
 
 
   </div>
@@ -72,12 +57,15 @@
 import PostForm from "@/components/PostForm";
 import PostList from "@/components/PostList";
 import {ref} from 'vue';
+import {usePosts} from "@/hooks/usePosts";
+import useSortedPosts from "@/hooks/useSortedPosts";
+import useSortedAndSearchedPosts from "@/hooks/useSortedAndSearchedPosts";
 
 export default {
   //Регистрируем компоненты
   components: {
+    PostList,
     PostForm,
-    PostList
   },
   //Модели описываются в data
   data() {
@@ -91,18 +79,24 @@ export default {
       ],
     }
   },
+  // Хуки - Vue Composition API - объединение данных и методов, которые с ними работают
   setup(props) {
-    const likes = ref(0)
-
-    const addLike = () => {
-      likes.value += 1
-    }
+    const {posts, isPostsLoading, totalPages} = usePosts(10, 1);
+    const {selectedSort, sortedPosts} = useSortedPosts(posts);
+    const {searchQuery, sortedAndSearchedPosts} = useSortedAndSearchedPosts(sortedPosts);
 
     return {
-      likes,
-      addLike
+      posts,
+      totalPages,
+      isPostsLoading,
+      sortedPosts,
+      selectedSort,
+      searchQuery,
+      sortedAndSearchedPosts
     }
-  }
+   }
+
+
 }
 
 

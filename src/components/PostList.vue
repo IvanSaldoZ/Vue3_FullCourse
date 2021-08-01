@@ -25,6 +25,9 @@
         type: Array,
         required: true,
       }
+    },
+    beforeCreate() {
+      console.log(this.posts)
     }
   }
 </script>
